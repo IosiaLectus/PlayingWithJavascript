@@ -1,0 +1,30 @@
+/*
+ * Some CSS
+ */
+ 
+h1 {
+  color: Black;
+  text-align: center;
+ }
+
+ p {
+   color: Black;
+   text-align: center;
+  }
+
+ #canvas-container {
+    width: 100%;
+    text-align:center;
+ }
+
+ canvas {
+    display: inline;
+ }
+  #button-container {
+     width: 100%;
+     text-align:center;
+  }
+
+  button {
+     display: inline;
+  }

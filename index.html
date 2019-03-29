@@ -3,29 +3,37 @@
 
 <html>
 
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
 
-​<h2>A Canvas</h2>
+​<h1>A Canvas</h1>
 
-<canvas id="main_canvas" width="1000" height="600" style="border:1px solid #d3d3d3;">
-
-Your browser does not support the HTML5 canvas tag.</canvas>
-
+<div id="canvas-container">
+   <canvas id="main_canvas" width="1000" height="600" style="border:1px solid #d3d3d3;">
+   Your browser does not support the HTML5 canvas tag.</canvas>
+</div>
 ​
 
 <script>
 
 // Set up the UI
 
-// Get Canvas etcan.
+// Get Canvas etc.
 var can = document.getElementById("main_canvas");
+can.width = window.innerWidth * 0.8;
+can.height = window.innerHeight * 0.7;
 can.addEventListener('click', function (e) { OnClick(e); }, false);
 var ctx = can.getContext("2d");
 
 // Define grid parameters
-var step_size = 10;
+var step_size = 15;
 var grid_width = Math.floor(can.width/step_size);
 var grid_height = Math.floor(can.height/step_size);
+can.width = step_size * grid_width;
+can.height = step_size * grid_height;
 
 // Create an array to store state of grid cells
 var grid = new Array(grid_width).fill(0);
@@ -99,8 +107,6 @@ function OnClick(e){
   // get the mouse position
   var mouseX=e.clientX - can.offsetLeft;
   var mouseY=e.clientY - can.offsetTop;
-
-  document.getElementById("coord_indicator").innerHTML = `x:${mouseX}, y:${mouseY}`;
 
   for  (i=0; i<grid_width; i++){
     for (j=0; j<grid_height; j++){
@@ -248,27 +254,19 @@ function step() {
   ParseGrid();
 }
 
-function try_step(){
-  try {
-    step();
-  } catch(err) {
-    document.getElementById("errors").innerHTML = err.message;
-  }
-}
-
 </script>
 
-​<p id='coord_indicator'>clicked coordinates to here</p>
+<div id="button-container">
 
-<button id='reset_button' type="button" onclick='Reset()'>Reset</button>
+  <button id='reset_button' type="button" onclick='Reset()'>Reset</button>
 
-<button id='step_button' type="button" onclick='try_step()'>Step</button>
+  <button id='step_button' type="button" onclick='step()'>Step</button>
 
-<button id='run_button' type="button" onclick='loop_toggle()'>Run</button>
+  <button id='run_button' type="button" onclick='loop_toggle()'>Run</button>
 
-<button id='fr_button' type="button" onclick='fill_random(500)'>Randomly Fill</button>
+  <button id='fr_button' type="button" onclick='fill_random(grid_width*grid_height/10)'>Randomly Fill</button>
 
-​<p id='errors'>Errors</p>
+</div>
 
 </body>
 
