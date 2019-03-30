@@ -9,7 +9,7 @@
 
 <body>
 
-​<h1>A Canvas</h1>
+​<h1>A Cellular Automaton</h1>
 
 <div id="canvas-container">
    <canvas id="main_canvas" width="1000" height="600" style="border:1px solid #d3d3d3;">
@@ -119,6 +119,21 @@ function OnClick(e){
   ParseGrid();
 }
 
+// Menu options
+
+function set_rule() {
+  var birth_string = prompt("Enter numbers of live neighbors which should cause a cell to be born, seperated by spaces or commas.","");
+  var survive_string = prompt("Enter numbers of live neighbors which should cause a cell to survive, seperated by spaces or commas.","");
+  var blist = birth_string.split(/[ ,]+/);
+  var slist = survive_string.split(/[ ,]+/);
+  for (var i=0; i<blist.length; i++){
+    blist[i] = parseInt(blist[i]);
+  }
+  for (var i=0; i<slist.length; i++){
+    slist[i] = parseInt(slist[i])+1;
+  }
+  rule = BSRule(blist,slist);
+}
 
 // Main Loop
 
@@ -265,6 +280,8 @@ function step() {
   <button id='run_button' type="button" onclick='loop_toggle()'>Run</button>
 
   <button id='fr_button' type="button" onclick='fill_random(grid_width*grid_height/10)'>Randomly Fill</button>
+
+  <button id='settings_button' type="button" onclick='set_rule()'>Settings</button>
 
 </div>
 
