@@ -1,4 +1,4 @@
-# PlayingWithJavascript
+# Playing With Javascript
 
 ## Introduction
 
