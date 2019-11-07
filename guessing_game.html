@@ -28,6 +28,9 @@ Keep track of the game state:
 1 : 'Let's play a game'
 2 : In game
 3 : Play again?
+4 : Update stroke
+5 : save data?
+6 : terminal state
 */
 var state = 0;
 
@@ -45,21 +48,18 @@ var tree = [
 var current_node = 0;
 var to_append = "";
 
+read_data();
+
 // Evaluate yes or no answer
 function answer_eval(ans){
-  if (ans.includes('yes')){
+  var ans2 = ans.toLowerCase();
+  if (ans2.includes('yes')){
     return true;
   }
-  if (ans.includes('Yes')){
-    return true;
-  }
-  if (ans.includes('no')){
+  if (ans2.includes('no')){
     return false;
   }
-  if (ans.includes('No')){
-    return false;
-  }
-  if (ans.includes('Y')){
+  if (ans.includes('y')){
     return true;
   }
   return false;
@@ -69,6 +69,17 @@ function answer_eval(ans){
 function handle(){
   var form = document.getElementById("input");
   var outtext = document.getElementById("outtext");
+
+  if (state == 6){
+    var answer = answer_eval(form.elements[0].value);
+    form.elements[0].value = "";
+    if (answer) {
+      save_data();
+    }
+    outtext.innerHTML = "Please refresh or exit this page.";
+    return;
+  }
+
   if (state == 3){
     var answer = answer_eval(form.elements[0].value);
     form.elements[0].value = "";
@@ -78,10 +89,12 @@ function handle(){
       outtext.innerHTML = text;
       state = 1;
     } else {
-      outtext.innerHTML = "See you soon";
-      state = -1;
+      outtext.innerHTML = "Would you like to save the data from this game? (This creates a browser cookie).";
+      state = 6;
     }
+    return;
   }
+
   if (state == 5){
     var quest = form.elements[0].value;
     form.elements[0].value = "";
@@ -108,13 +121,17 @@ function handle(){
     tree.push(new_node_right);
     outtext.innerHTML = "Would you like to play again?";
     state = 3;
+    return;
   }
+
   if (state == 4){
-    to_append = form.elements[0].value;
+    to_append = form.elements[0].value.toLowerCase();
     form.elements[0].value = "";
-    outtext.innerHTML = "Oh, I see. Could you please enter a question for which the answer is 'yes' for ".concat(to_append," but is no for ",tree[current_node].guess,"?");
+    outtext.innerHTML = "Oh, I see. Could you please enter a question for which the answer is 'yes' for ".concat(to_append," but is 'no' for ",tree[current_node].guess,"?");
     state = 5;
+    return;
   }
+
   if (state == 2){
     var answer = answer_eval(form.elements[0].value);
     form.elements[0].value = "";
@@ -138,18 +155,60 @@ function handle(){
       outtext.innerHTML = tree[current_node].question;
       state = 2;
     }
+    return;
   }
+
   if (state == 1){
     form.elements[0].value = "";
     outtext.innerHTML = tree[0].question;
     state = 2;
+    return;
   }
+
   if (state == 0){
     user_name = form.elements[0].value;
     form.elements[0].value = "";
     var text = "Hello ".concat(user_name, "! Let's play a game. You think of an animal, and I'll try to guess what it is. Are you ready?");
     outtext.innerHTML = text;
     state = 1;
+    return;
+  }
+
+}
+
+function save_data (){
+
+  var wrapper = {
+    name: user_name,
+    tree: tree
+  };
+
+  var string_form = JSON.stringify(wrapper);
+  // From stack overflow: https://stackoverflow.com/questions/11344531/pure-javascript-store-object-in-cookie
+  var cookie = ['data', '=', string_form, '; domain=.', window.location.host.toString(), '; path=/;','expires= Thu, 5 Jan 2040 20:00:00 UTC;'].join('');
+
+  document.cookie = cookie;
+  console.log(wrapper);
+  console.log(cookie);
+}
+
+function read_data (){
+  try {
+    // Also from stack overflow: https://stackoverflow.com/questions/11344531/pure-javascript-store-object-in-cookie
+    var result = document.cookie.match(new RegExp('data' + '=([^;]+)'));
+
+    wrapper = JSON.parse(result[1]);
+    user_name = wrapper.name;
+    tree = wrapper.tree;
+
+    var text = "Hello ".concat(user_name, "! Let's play a game. You think of an animal, and I'll try to guess what it is. Are you ready?");
+    outtext.innerHTML = text;
+    state = 1;
+    console.log("It works");
+
+  } finally {
+    console.log(document.cookie);
+    return;
   }
 }
 
