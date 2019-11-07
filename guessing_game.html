@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+​<h1>Let's Play a Game:</h1>
+
+<p id="outtext">Hello, what is your name?</p>
+
+<div id="form-container">
+  <form id="input">
+    <input type="text" name="in_text"><br><br>
+    <input type="button" onclick="handle()" value="Submit">
+  </form>
+</div>
+
+<script>
+
+/*
+Keep track of the game state:
+0 : Starting screen (asks name)
+1 : 'Let's play a game'
+2 : In game
+3 : Play again?
+*/
+var state = 0;
+
+// Save the user name
+var user_name = "";
+var tree = [
+  {question: "Can you keep it as a pet?", left: 1, right: 2},
+  {question: "Does it purr?", left: 3, right: 4, parent: 0},
+  {question: "Is it a mammal?", left: 5, right: 6, parent: 0},
+  {question: "Is it a cat?", left: null, right: null, parent:1, guess: "cat"},
+  {question: "Is it a dog?", left: null, right: null, parent:1, guess: "dog"},
+  {question: "Is it a bear?", left: null, right: null, parent:2, guess: "bear"},
+  {question: "Is it a crocodile?", left: null, right: null, parent:2, guess: "crocodile"}
+];
+var current_node = 0;
+var to_append = "";
+
+// Evaluate yes or no answer
+function answer_eval(ans){
+  if (ans.includes('yes')){
+    return true;
+  }
+  if (ans.includes('Yes')){
+    return true;
+  }
+  if (ans.includes('no')){
+    return false;
+  }
+  if (ans.includes('No')){
+    return false;
+  }
+  if (ans.includes('Y')){
+    return true;
+  }
+  return false;
+}
+
+// Handle text from form
+function handle(){
+  var form = document.getElementById("input");
+  var outtext = document.getElementById("outtext");
+  if (state == 3){
+    var answer = answer_eval(form.elements[0].value);
+    form.elements[0].value = "";
+    if (answer) {
+      current_node = 0;
+      var text = "Hello ".concat(user_name, "! Let's play a game. You think of an animal, and I'll try to guess what it is. Are you ready?");
+      outtext.innerHTML = text;
+      state = 1;
+    } else {
+      outtext.innerHTML = "See you soon";
+      state = -1;
+    }
+  }
+  if (state == 5){
+    var quest = form.elements[0].value;
+    form.elements[0].value = "";
+    var new_node_left =
+      {
+        question: "Is it a ".concat(to_append,"?"),
+        left: null,
+        right: null,
+        parent: current_node,
+        guess: to_append
+      };
+    var new_node_right =
+      {
+        question: "Is it a ".concat(tree[current_node].guess,"?"),
+        left: null,
+        right: null,
+        parent: current_node,
+        guess: tree[current_node].guess
+      };
+    tree[current_node].question = quest;
+    tree[current_node].left = tree.length;
+    tree[current_node].right = tree.length + 1;
+    tree.push(new_node_left);
+    tree.push(new_node_right);
+    outtext.innerHTML = "Would you like to play again?";
+    state = 3;
+  }
+  if (state == 4){
+    to_append = form.elements[0].value;
+    form.elements[0].value = "";
+    outtext.innerHTML = "Oh, I see. Could you please enter a question for which the answer is 'yes' for ".concat(to_append," but is no for ",tree[current_node].guess,"?");
+    state = 5;
+  }
+  if (state == 2){
+    var answer = answer_eval(form.elements[0].value);
+    form.elements[0].value = "";
+    var next_node = 0;
+    if (answer){
+      next_node = tree[current_node].left
+    } else {
+        next_node = tree[current_node].right
+    }
+
+    if (next_node == null){
+      if (answer) {
+        outtext.innerHTML = "I win! Would you like to play again?";
+        state = 3;
+      } else {
+        outtext.innerHTML = "You win! What was your answer?";
+        state = 4;
+      }
+    } else {
+      current_node = next_node
+      outtext.innerHTML = tree[current_node].question;
+      state = 2;
+    }
+  }
+  if (state == 1){
+    form.elements[0].value = "";
+    outtext.innerHTML = tree[0].question;
+    state = 2;
+  }
+  if (state == 0){
+    user_name = form.elements[0].value;
+    form.elements[0].value = "";
+    var text = "Hello ".concat(user_name, "! Let's play a game. You think of an animal, and I'll try to guess what it is. Are you ready?");
+    outtext.innerHTML = text;
+    state = 1;
+  }
+}
+
+</script>
+
+</body>
+
+</html>
+
+​
