@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <!-- From https://www.w3schools.com/howto/howto_js_rangeslider.asp -->
+  <style>
+  .slidecontainer {
+    width: 100%;
+  }
+
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+
+  .slider:hover {
+    opacity: 1;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+  }
+  </style>
+</head>
+
+<body>
+
+​<h1>Quadratic Functions</h1>
+
+<form>
+<div class="slidecontainer">
+  <center>
+
+    <p id="para_a">a: 0.1</p>
+    <input type="range" min="-10000" max="10000" value="100" id='slider_a'>
+
+    <p id="para_x0">x0: 0</p>
+    <input type="range" min="-10000" max="10000" value="0" id='slider_x0'>
+
+    <p id="para_y0">y0: 0</p>
+    <input type="range" min="-10000" max="10000" value="0" id='slider_y0'>
+
+  </center>
+
+</div>
+</form>
+
+<h2> <center> Plot of f(x) = a(x-x0)^2 + y0 </center> </h2>
+
+<div id="canvas-container">
+   <canvas id="main_canvas" width="1000" height="600" style="border:1px solid #d3d3d3;">
+   Your browser does not support the HTML5 canvas tag.</canvas>
+</div>
+​
+
+<script>
+
+// Some colors
+var LIGHT_GREY = 	'#D3D3D3';
+var BLACK = '#000000';
+var RED = '#FF0000';
+
+// Parabola parameters
+var x_0 = 0;
+var y_0 = 0;
+var slope = 0.01; // It's not really a slope, but I don't know of a better name right now.
+// The quadratic function defining the parabola is y(x) = slope * (x - x_0)^2 + y_0
+function quad_function(x) {
+  var x_shifted = x-x_0;
+  return slope*x_shifted*x_shifted + y_0;
+}
+
+// Set up the UI
+
+// Get Canvas etc.
+var can = document.getElementById("main_canvas");
+can.width = window.innerWidth * 0.8;
+can.height = window.innerHeight * 0.7;
+var ctx = can.getContext("2d");
+
+// Define grid parameters
+var step_size = 15;
+var grid_width = Math.floor(can.width/step_size);
+var grid_height = Math.floor(can.height/step_size);
+// Make sure that the grid has an even number of cells in the vertical and horizontal direction
+if (grid_width%2 == 1){
+  grid_width = grid_width+1;
+}
+if (grid_height%2 == 1){
+  grid_height = grid_height+1;
+}
+center_x = grid_width/2;
+center_y = grid_height/2;
+can.width = step_size * grid_width;
+can.height = step_size * grid_height;
+var cx = center_x*step_size;
+var cy = center_y*step_size;
+var abs_height = grid_height*step_size;
+var abs_width = grid_width*step_size;
+
+// Draw grid
+function draw_grid(){
+  for (i = 0; i < grid_width; i++) {
+    for (j = 0; j < grid_height; j++) {
+      ctx.strokeStyle = LIGHT_GREY;
+      ctx.strokeRect(step_size*i,step_size*j,step_size,step_size);
+    }
+  }
+}
+
+// Draw Coordinate axes
+function draw_axes(){
+  // x-axis
+  ctx.beginPath();
+  ctx.moveTo(0, cy);
+  ctx.lineTo(abs_width, cy);
+  ctx.strokeStyle = BLACK;
+  ctx.stroke();
+
+  // y-axis
+  ctx.beginPath();
+  ctx.moveTo(cx, 0);
+  ctx.lineTo(cx, abs_height);
+  ctx.strokeStyle = BLACK;
+  ctx.stroke();
+}
+
+// Draw the Parabola
+function draw_parabola(){
+  for (i=0; cx+x_0+i+1<=can.width && quad_function(x_0+i+1)+center_y<=can.height; i++){
+
+    var x = i;
+    var y = can.height - quad_function(x_0+x) - cy;
+    var y2 = can.height - quad_function(x_0+x+1) - cy;
+
+    ctx.beginPath();
+    ctx.moveTo(cx+x_0+x,y);
+    ctx.lineTo(cx+x_0+x+1,y2);
+    ctx.strokeStyle = RED;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx+x_0-x,y);
+    ctx.lineTo(cx+x_0-x-1,y2);
+    ctx.strokeStyle = RED;
+    ctx.stroke();
+  }
+}
+
+// Update the canvas
+function update_canvas(){
+  ctx.clearRect(0, 0, can.width, can.height);
+  draw_grid();
+  draw_axes();
+  draw_parabola();
+}
+
+// Actually draw stuff
+update_canvas();
+
+// Get and setup the sliders
+var slope_slider = document.getElementById("slider_a");
+var x0_slider = document.getElementById("slider_x0");
+var y0_slider = document.getElementById("slider_y0");
+slope_slider.addEventListener('input', update_slope(), false);
+x0_slider.addEventListener('input', update_x0(), false);
+y0_slider.addEventListener('input', update_y0(), false);
+slope_slider.addEventListener('change', update_slope(), false);
+x0_slider.addEventListener('change', update_x0(), false);
+y0_slider.addEventListener('change', update_y0(), false);
+
+// Update from sliders
+function update_slope(){
+  var new_a = slope_slider.value;
+  slope = 0.5*new_a/10000;
+  document.getElementById("para_a").innerHTML="a: ".concat(slope.toString());
+  update_canvas();
+}
+
+function update_x0(){
+    var new_x0 = x0_slider.value;
+    x_0 = 0.8*new_x0*cx/10000;
+    document.getElementById("para_x0").innerHTML="x0: ".concat(x_0.toString());
+    update_canvas();
+}
+
+function update_y0(){
+    var new_y0 = y0_slider.value;
+    y_0 = 0.8*new_y0*cy/10000;
+    document.getElementById("para_y0").innerHTML="y0: ".concat(y_0.toString());
+    update_canvas();
+}
+
+
+setInterval(update_slope, 100);
+setInterval(update_x0, 100);
+setInterval(update_y0, 100);
+
+</script>
+
+</body>
+
+</html>
+
+​
