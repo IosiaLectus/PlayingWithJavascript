@@ -176,14 +176,14 @@ y0_slider.addEventListener('change', update_y0(), false);
 // Update from sliders
 function update_slope(){
   var new_a = slope_slider.value;
-  slope = 5*new_a/100000;
+  slope = 10*new_a/slope_slider.max;
   document.getElementById("para_a").innerHTML="a: ".concat(slope.toString());
   update_canvas();
 }
 
 function update_x0(){
     var new_x0 = x0_slider.value;
-    x_0 = 0.8*new_x0*center_x/100000;
+    x_0 = 0.8*new_x0*center_x/x0_slider.max;
     xx_0 = x_0*step_size;
     document.getElementById("para_x0").innerHTML="x0: ".concat(x_0.toString());
     update_canvas();
@@ -191,7 +191,7 @@ function update_x0(){
 
 function update_y0(){
     var new_y0 = y0_slider.value;
-    y_0 = 0.8*new_y0*center_y/100000;
+    y_0 = 0.8*new_y0*center_y/y0_slider.max;
     yy_0 = y_0*step_size
     document.getElementById("para_y0").innerHTML="y0: ".concat(y_0.toString());
     update_canvas();
