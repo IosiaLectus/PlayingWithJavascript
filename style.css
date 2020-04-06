@@ -1,7 +1,7 @@
 /*
  * Some CSS
  */
- 
+
 h1 {
   color: Black;
   text-align: center;
@@ -28,3 +28,10 @@ h1 {
   button {
      display: inline;
   }
+  form {
+     display: inline;
+  }
+   #form-container {
+      width: 100%;
+      text-align:center;
+   }
