@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+​<h1>The Game Snake</h1>
+
+<div id="canvas-container">
+   <canvas id="main_canvas" width="1000" height="600" style="border:1px solid #d3d3d3;">
+   Your browser does not support the HTML5 canvas tag.</canvas>
+</div>
+​
+
+<script>
+
+// Set up the UI
+
+// Listen for keyboard events
+document.addEventListener('keypress', function handle_keypress(event){
+	var key = event.key;
+	if (key=='Spacebar'){
+		should_run = !should_run;
+	}
+}, false);
+
+// Get Canvas etc.
+var can = document.getElementById("main_canvas");
+can.width = window.innerWidth * 0.8;
+can.height = window.innerHeight * 0.7;
+var ctx = can.getContext("2d");
+
+// Define grid parameters
+var step_size = 15;
+var grid_width = Math.floor(can.width/step_size);
+var grid_height = Math.floor(can.height/step_size);
+can.width = step_size * grid_width;
+can.height = step_size * grid_height;
+
+// Draw grid
+function draw_grid() {
+	for (i = 0; i < grid_width; i++) {
+		for (j = 0; j < grid_height; j++) {
+			ctx.strokeRect(step_size*i,step_size*j,step_size,step_size);
+		}
+	}
+}
+
+draw_grid();
+
+
+// Create an array to store state of grid cells
+var grid = new Array(grid_width).fill(0);
+for (i=0; i<grid_width; i++){
+  grid[i] = new Array(grid_height).fill(0)
+}
+
+// Check if coordiates are in box
+function inCell(x,y,i,j,dx){
+  return ((x > dx*i && x <  dx*(i+1)) && (y > dx*j && y <  dx*(j+1)));
+}
+
+// Toggle box color
+function FillCell(i,j,dx){
+  var isOn = grid[i][j];
+  if (isOn == 1){
+    ctx.fillStyle = "black";
+  } else if  (isOn == 0){
+    ctx.fillStyle = "white";
+  }
+  ctx.fillRect(dx*i,dx*j,dx,dx);
+  ctx.strokeRect(dx*i,dx*j,dx,dx);
+}
+
+// Use the grid array to draw the grid to the canvas.
+function ParseGrid(){
+
+  dx = step_size;
+  for  (i=0; i<grid_width; i++){
+    for (j=0; j<grid_height; j++){
+      FillCell(i,j,step_size);
+    }
+  }
+
+}
+
+// Reset the grid
+function Reset(){
+
+  for  (i=0; i<grid_width; i++){
+    for (j=0; j<grid_height; j++){
+      grid[i][j] = 0;
+    }
+  }
+  ParseGrid();
+
+}
+
+// Main Loop
+
+var should_run = false;
+var frame_counter = 0;
+var game_over = false;
+
+function loop_toggle() {
+  if (should_run) {
+    should_run = false;
+    document.getElementById("run_button").innerHTML = "Run";
+  } else {
+    should_run = true;
+    main_loop();
+    document.getElementById("run_button").innerHTML = "Stop";
+  }
+}
+
+function main_loop () {
+  if (frame_counter == 0){
+    step();
+  }
+  frame_counter++;
+  frame_counter = frame_counter%6;
+  if(should_run) {
+    window.requestAnimationFrame(main_loop);
+  }
+}
+
+// Advance game by one step
+function step() {
+  var ret = new Array(grid_width).fill(0);
+  for (i=0; i<grid_width; i++){
+    ret[i] = new Array(grid_height).fill(0);
+  }
+  for  (i=0; i<grid_width; i++){
+    for (j=0; j<grid_height; j++){
+      ret[i][j] = new_state(i,j);
+    }
+  }
+  grid = ret;
+  ParseGrid();
+}
+
+// Game Mechanics
+
+// Coordinates of the head and tail of the snake
+var head_x = Math.floor(grid_width/2);
+var head_y = Math.floor(grid_height/2);
+var tail_x = Math.floor(grid_width/2);
+var tail_y = Math.floor(grid_height/2);
+
+// Direction the snake is moving
+var direction = 'right';
+
+// Coordinates of the apple
+var apple_x = 0;
+var apple_y = 0;
+
+// Place an apple randomly
+function place_apple(){
+	apple_x = Math.floor(Math.random()*grid_width);
+	apple_y = ath.floor(Math.random()*grid_height);
+	if (grid[apple_x][apple_y]==1){
+		place_apple();
+	} else {
+		grid[apple_x][apple_y] = 1;
+	}
+}
+
+// Move the snake
+function move_snake(){
+	switch(direction){
+		case 'right':
+			head_x = head_x + 1;
+		case 'left':
+			head_x = head_x - 1;
+		case 'up':
+			head_y = head_y + 1;
+		case 'down':
+			head_y = head_y - 1;
+	}
+	if apple_collision(){
+
+	} else if {
+
+	} else {
+		
+	}
+}
+
+// Detect if the snake has collided with itself, the wall, or the apple
+function detect_collision(){}
+
+</script>
+
+<div id="button-container">
+
+  <button id='reset_button' type="button" onclick='Reset()'>Reset</button>
+
+  <button id='step_button' type="button" onclick='step()'>Step</button>
+
+  <button id='run_button' type="button" onclick='loop_toggle()'>Run</button>
+
+</div>
+
+</body>
+
+</html>
+
+​
